@@ -2,7 +2,7 @@
 // PARENT APP
 // ─────────────────────────────────────────────
 import { useState } from "react";
-import { Ic } from "../../components/icons.jsx";
+import { Ic } from "../../components/icon.jsx";
 import ParentToday from "./ParentToday.jsx";
 import ParentWeekly from "./ParentWeekly.jsx";
 import ParentPhotos from "./ParentPhotos.jsx";

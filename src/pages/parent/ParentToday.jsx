@@ -3,7 +3,7 @@ import {
   PHOTOS,
   TEACHER_NOTES,
 } from "../../data/sampleData.js";
-import { Ic } from "../../components/icons.jsx";
+import { Ic } from "../../components/icon.jsx";
 
 export default function ParentToday({ onLogout }) {
   const today = WEEKLY_PLAN.days[0];
