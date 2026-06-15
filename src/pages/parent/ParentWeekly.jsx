@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { WEEKLY_PLAN } from "../../data/sampleData.js";
 
-export default function ParentWeekly({ onLogout }) {
+export default function ParentWeekly({ selectedChild }) {
   const [activeDay, setActiveDay] = useState(0);
   const day = WEEKLY_PLAN.days[activeDay];
 
@@ -12,21 +12,37 @@ export default function ParentWeekly({ onLogout }) {
         <p className="serif" style={{fontSize:20,color:"#26201A"}}>What we're learning 📖</p>
       </div>
 
-      {/* Theme banner */}
+      {selectedChild && (
+        <div className="context-pill">
+          <span className="context-avatar" style={{background:selectedChild.accent}}>{selectedChild.avatar}</span>
+          <span>
+            <span className="context-label">Showing plan for</span>
+            <span className="context-name">{selectedChild.name} · {selectedChild.className}</span>
+          </span>
+        </div>
+      )}
+
       <div className="card" style={{background:"linear-gradient(135deg,#FDE8D8,#DBF0D0)"}}>
         <div style={{fontSize:32,marginBottom:8}}>🐾</div>
         <p className="serif" style={{fontSize:18,color:"#26201A",marginBottom:4}}>{WEEKLY_PLAN.theme}</p>
         <p style={{fontSize:13,color:"#7A6E66",lineHeight:1.5}}>{WEEKLY_PLAN.focus}</p>
       </div>
 
-      {/* Day tabs */}
-      <div className="day-tabs">
+      <div className="day-tabs" role="tablist" aria-label="Week days">
         {WEEKLY_PLAN.days.map((d,i)=>(
-          <button key={i} className={`day-tab${activeDay===i?" active":""}`} onClick={()=>setActiveDay(i)}>{d.short}</button>
+          <button
+            key={i}
+            type="button"
+            role="tab"
+            aria-selected={activeDay===i}
+            className={`day-tab${activeDay===i?" active":""}`}
+            onClick={()=>setActiveDay(i)}
+          >
+            {d.short}
+          </button>
         ))}
       </div>
 
-      {/* Day detail */}
       <div className="card fi" key={activeDay}>
         <p className="serif" style={{fontSize:19,color:"#26201A",marginBottom:14}}>{day.full}</p>
 
@@ -43,7 +59,6 @@ export default function ParentWeekly({ onLogout }) {
         ))}
       </div>
 
-      {/* Week at a glance */}
       <div className="card">
         <p className="serif" style={{fontSize:16,color:"#26201A",marginBottom:12}}>Week at a glance</p>
         {WEEKLY_PLAN.days.map((d,i)=>(
