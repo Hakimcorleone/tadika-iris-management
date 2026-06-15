@@ -2,6 +2,7 @@ import { ADMIN_CLASSES, ANNOUNCEMENTS } from "../../data/sampleData.js";
 import { Ic } from "../../components/icon.jsx";
 
 export default function AdminOverview({ onLogout }) {
+  const todayLabel = "Monday, 11 May 2026";
   const stats = [
     {label:"Classes",  val:4,  emoji:"🏫", bg:"#FDE8D8"},
     {label:"Students", val:68, emoji:"👦", bg:"#DBF0D0"},
@@ -12,24 +13,22 @@ export default function AdminOverview({ onLogout }) {
     <div className="scroll-top fi">
       <div className="top-bar row-between">
         <div>
-          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>Sunday, 17 May 2026</p>
+          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{todayLabel}</p>
           <p className="serif" style={{fontSize:19,color:"#26201A"}}>Good morning, Pn. Laila 🌸</p>
         </div>
-        <button onClick={onLogout} style={{background:"none",border:"none",cursor:"pointer",color:"#ABA099"}}><Ic.Out/></button>
+        <button type="button" aria-label="Log out" onClick={onLogout} className="icon-btn"><Ic.Out/></button>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid">
         {stats.map((s,i)=>(
           <div key={i} className="stat-card" style={{background:s.bg}}>
-            <div style={{fontSize:24,marginBottom:4}}>{s.emoji}</div>
+            <div style={{fontSize:24,marginBottom:4}} aria-hidden="true">{s.emoji}</div>
             <p style={{fontSize:26,fontWeight:800,color:"#26201A"}}>{s.val}</p>
             <p style={{fontSize:12,fontWeight:700,color:"#7A6E66"}}>{s.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Weekly plan status */}
       <div className="card">
         <div className="sec-header">
           <p className="serif" style={{fontSize:16,color:"#26201A"}}>Weekly Plan Status</p>
@@ -50,15 +49,14 @@ export default function AdminOverview({ onLogout }) {
         ))}
       </div>
 
-      {/* Announcements */}
       <div className="card">
         <div className="sec-header">
           <p className="serif" style={{fontSize:16,color:"#26201A"}}>Recent Announcements</p>
-          <button className="btn btn-ghost btn-sm"><Ic.Plus/> New</button>
+          <button type="button" className="btn btn-ghost btn-sm" aria-label="Create new announcement"><Ic.Plus/> New</button>
         </div>
         {ANNOUNCEMENTS.map((a,i)=>(
           <div key={i} className="list-item">
-            <span style={{fontSize:22}}>{a.emoji}</span>
+            <span style={{fontSize:22}} aria-hidden="true">{a.emoji}</span>
             <div style={{flex:1}}>
               <p style={{fontSize:13,fontWeight:700,color:"#26201A"}}>{a.title}</p>
               <p style={{fontSize:11,color:"#7A6E66"}}>{a.date}</p>
@@ -68,7 +66,6 @@ export default function AdminOverview({ onLogout }) {
         ))}
       </div>
 
-      {/* Today's updates */}
       <div className="card">
         <p className="serif" style={{fontSize:16,color:"#26201A",marginBottom:12}}>Today's Updates</p>
         {[
