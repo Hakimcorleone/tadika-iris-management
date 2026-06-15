@@ -1,5 +1,7 @@
-import { ADMIN_CLASSES, ANNOUNCEMENTS } from "../../data/sampleData.js";
+import { ADMIN_CLASSES, ANNOUNCEMENTS, PAYMENT_SUMMARY, WHATSAPP_QUEUE } from "../../data/sampleData.js";
 import { Ic } from "../../components/icon.jsx";
+
+const money = value => `RM${value.toLocaleString("en-MY")}`;
 
 export default function AdminOverview({ onLogout }) {
   const todayLabel = "Monday, 11 May 2026";
@@ -18,6 +20,27 @@ export default function AdminOverview({ onLogout }) {
         </div>
         <button type="button" aria-label="Log out" onClick={onLogout} className="icon-btn"><Ic.Out/></button>
       </div>
+
+      <section className="owner-priority-card">
+        <div>
+          <p className="mini-eyebrow">Owner snapshot</p>
+          <p className="serif" style={{fontSize:22,color:"#26201A"}}>Money and WhatsApp follow-ups</p>
+        </div>
+        <div className="owner-snapshot-grid">
+          <div>
+            <span>Collected</span>
+            <strong>{money(PAYMENT_SUMMARY.collected)}</strong>
+          </div>
+          <div>
+            <span>Outstanding</span>
+            <strong>{money(PAYMENT_SUMMARY.outstanding)}</strong>
+          </div>
+          <div>
+            <span>WhatsApp Queue</span>
+            <strong>{WHATSAPP_QUEUE.length}</strong>
+          </div>
+        </div>
+      </section>
 
       <div className="stats-grid">
         {stats.map((s,i)=>(
