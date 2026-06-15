@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Ic } from "../../components/icon.jsx";
-import { CHILDREN } from "../../data/sampleData.js";
 import ParentToday from "./ParentToday.jsx";
 import ParentWeekly from "./ParentWeekly.jsx";
 import ParentPhotos from "./ParentPhotos.jsx";
@@ -8,14 +7,16 @@ import ParentNotices from "./ParentNotices.jsx";
 import ParentChild from "./ParentChild.jsx";
 import "./parent.css";
 
-export default function ParentApp({ onLogout }) {
+export default function ParentApp({ onLogout, data }) {
+  const childrenList = data?.children || [];
   const [tab, setTab] = useState("today");
-  const [selectedChildId, setSelectedChildId] = useState(CHILDREN[0].id);
-  const selectedChild = CHILDREN.find(child => child.id === selectedChildId) || CHILDREN[0];
+  const [selectedChildId, setSelectedChildId] = useState(childrenList[0]?.id || "");
+  const selectedChild = childrenList.find(child => child.id === selectedChildId) || childrenList[0] || null;
   const childProps = {
-    childrenList: CHILDREN,
+    data,
+    childrenList,
     selectedChild,
-    selectedChildId,
+    selectedChildId: selectedChild?.id || "",
     onSelectChild: setSelectedChildId,
   };
 
@@ -24,16 +25,16 @@ export default function ParentApp({ onLogout }) {
     {id:"weekly", Icon:Ic.Cal,   label:"Weekly"},
     {id:"photos", Icon:Ic.Img,   label:"Photos"},
     {id:"notices",Icon:Ic.Bell,  label:"Notices"},
-    {id:"child",  Icon:Ic.User,  label:CHILDREN.length > 1 ? "Children" : "My Child"},
+    {id:"child",  Icon:Ic.User,  label:childrenList.length > 1 ? "Children" : "My Child"},
   ];
 
   return (
     <div className="app fi">
-      {tab==="today"    && <ParentToday    onLogout={onLogout} {...childProps}/>} 
-      {tab==="weekly"   && <ParentWeekly   onLogout={onLogout} selectedChild={selectedChild}/>} 
-      {tab==="photos"   && <ParentPhotos   onLogout={onLogout} selectedChild={selectedChild}/>} 
-      {tab==="notices"  && <ParentNotices  onLogout={onLogout} selectedChild={selectedChild}/>} 
-      {tab==="child"    && <ParentChild    onLogout={onLogout} {...childProps}/>} 
+      {tab === "today"    && <ParentToday    onLogout={onLogout} {...childProps}/>} 
+      {tab === "weekly"   && <ParentWeekly   onLogout={onLogout} {...childProps}/>} 
+      {tab === "photos"   && <ParentPhotos   onLogout={onLogout} {...childProps}/>} 
+      {tab === "notices"  && <ParentNotices  onLogout={onLogout} {...childProps}/>} 
+      {tab === "child"    && <ParentChild    onLogout={onLogout} {...childProps}/>} 
 
       <nav className="bottom-nav" aria-label="Parent sections">
         {navItems.map(n=>(
