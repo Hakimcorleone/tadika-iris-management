@@ -11,6 +11,43 @@ export const WEEKLY_PLAN = {
   ],
 };
 
+export const CHILDREN = [
+  {
+    id:"ayra",
+    name:"Ayra Sofea",
+    shortName:"Ayra",
+    avatar:"🌸",
+    age:5,
+    className:"Kelas Pelangi 🌈",
+    teacher:"Cikgu Nadia",
+    status:"Present",
+    attendance:"Arrived 7:42am",
+    pickup:"1:00pm",
+    contact:"Ibu Farah · 012-xxx xxxx",
+    accent:"#FDE8D8",
+    accent2:"#D4EEFA",
+    note:"She was very engaged during storytelling today and even made up her own animal sounds. Wonderful imagination!",
+    privateNote:"Loves storytelling and responds well to visual prompts.",
+  },
+  {
+    id:"haziq",
+    name:"Muhammad Haziq",
+    shortName:"Haziq",
+    avatar:"🚀",
+    age:4,
+    className:"Kelas Bintang ⭐",
+    teacher:"Cikgu Ain",
+    status:"Present",
+    attendance:"Arrived 7:55am",
+    pickup:"12:45pm",
+    contact:"Ibu Farah · 012-xxx xxxx",
+    accent:"#DBF0D0",
+    accent2:"#FDF0CC",
+    note:"He joined the music activity confidently today and helped tidy up after snack time.",
+    privateNote:"Enjoys rhythm games and small group activities.",
+  },
+];
+
 export const STUDENTS = [
   { name:"Ayra Sofea",       emoji:"🌸", status:"present" },
   { name:"Muhammad Haziq",   emoji:"🚀", status:"present" },
@@ -42,5 +79,5 @@ export const PHOTOS = [
 
 export const TEACHER_NOTES = [
   { student:"Ayra Sofea", note:"She was very engaged during storytelling today and even made up her own animal sounds. Wonderful imagination!", date:"Today" },
-  { student:"Muhammad Haziq", note:"Needed a bit of encouragement during craft, but finished with a big smile. Great effort!", date:"Yesterday" },
+  { student:"Muhammad Haziq", note:"He joined the music activity confidently today and helped tidy up after snack time.", date:"Today" },
 ];
