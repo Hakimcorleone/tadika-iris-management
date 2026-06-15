@@ -1,10 +1,7 @@
-// ─────────────────────────────────────────────
-// SAMPLE DATA
-// ─────────────────────────────────────────────
 export const WEEKLY_PLAN = {
   theme: "Animals Around Us 🐾",
   focus: "Recognising animal names, sounds, and simple movement",
-  week: "12–16 May 2026",
+  week: "11–15 May 2026",
   days: [
     { short:"Mon", full:"Monday",    activity:"Storytelling + colouring activity",         meal:"Nasi lemak + air suam",    materials:"Colouring book, crayons",       reminder:"Bring your favourite animal toy tomorrow!" },
     { short:"Tue", full:"Tuesday",   activity:"Sensory play – animal textures & sounds",   meal:"Sandwich + milo suam",     materials:"Sensory box provided",           reminder:"Wear comfy clothes for outdoor play." },
