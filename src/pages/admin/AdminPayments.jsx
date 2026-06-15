@@ -20,7 +20,14 @@ function ProofTag({ status }) {
 }
 
 function PaymentDetailPanel({ payment }) {
-  if (!payment) return null;
+  if (!payment) {
+    return (
+      <aside className="payment-detail-card empty-detail">
+        <p className="serif" style={{fontSize:20,color:"#26201A"}}>No matching payment</p>
+        <p className="section-sub" style={{marginTop:6}}>Try another student, parent, invoice, or status filter.</p>
+      </aside>
+    );
+  }
 
   return (
     <aside className="payment-detail-card" aria-label={`${payment.child} payment details`}>
@@ -110,7 +117,10 @@ export default function AdminPayments({ onLogout }) {
     });
   }, [query, statusFilter]);
 
-  const selectedPayment = STUDENT_PAYMENTS.find(payment => payment.id === selectedPaymentId) || filteredPayments[0] || STUDENT_PAYMENTS[0];
+  const selectedPayment = STUDENT_PAYMENTS.find(payment => payment.id === selectedPaymentId);
+  const visiblePayment = filteredPayments.some(payment => payment.id === selectedPayment?.id)
+    ? selectedPayment
+    : filteredPayments[0] || null;
 
   return (
     <div className="scroll-top fi admin-money">
@@ -190,7 +200,7 @@ export default function AdminPayments({ onLogout }) {
               <button
                 key={payment.id}
                 type="button"
-                className={`money-row payment-row${selectedPayment.id === payment.id ? " active" : ""}`}
+                className={`money-row payment-row${visiblePayment?.id === payment.id ? " active" : ""}`}
                 onClick={() => setSelectedPaymentId(payment.id)}
               >
                 <div className="money-row-main">
@@ -207,7 +217,7 @@ export default function AdminPayments({ onLogout }) {
             ))}
           </div>
 
-          <PaymentDetailPanel payment={selectedPayment}/>
+          <PaymentDetailPanel payment={visiblePayment}/>
         </section>
       )}
 
