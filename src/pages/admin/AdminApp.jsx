@@ -8,9 +8,9 @@ import AdminStudents from "./AdminStudents.jsx";
 import AdminSettings from "./AdminSettings.jsx";
 import "./admin.css";
 
-export default function AdminApp({ onLogout, data, actions }) {
+export default function AdminApp({ onLogout, data, actions, tenant, workspace, usage, readiness, plans, saasTables }) {
   const [tab, setTab] = useState("overview");
-  const sharedProps = { onLogout, data, actions };
+  const sharedProps = { onLogout, data, actions, tenant, workspace, usage, readiness, plans, saasTables };
   const navItems = [
     {id:"overview", Icon:Ic.Home,  label:"Overview"},
     {id:"payments", Icon:Ic.Money, label:"Payments"},
@@ -25,7 +25,7 @@ export default function AdminApp({ onLogout, data, actions }) {
       {tab === "payments" && <AdminPayments  {...sharedProps}/>} 
       {tab === "whatsapp" && <AdminWhatsApp  {...sharedProps}/>} 
       {tab === "students" && <AdminStudents  {...sharedProps}/>} 
-      {tab === "settings" && <AdminSettings  onLogout={onLogout}/>} 
+      {tab === "settings" && <AdminSettings  {...sharedProps}/>} 
 
       <nav className="bottom-nav" aria-label="Admin sections">
         {navItems.map(n=>(
