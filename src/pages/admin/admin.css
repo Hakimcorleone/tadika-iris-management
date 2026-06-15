@@ -23,6 +23,17 @@
 .segmented button{border:none;border-radius:12px;background:transparent;color:var(--mid);font-size:12px;font-weight:900;padding:10px 6px;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s;}
 .segmented button.active{background:white;color:var(--dark);box-shadow:0 8px 18px rgba(38,32,26,.08);}
 .finance-section{padding:18px;}
+.fees-layout{display:grid;grid-template-columns:1fr;gap:14px;align-items:start;}
+.payment-toolbar{display:grid;gap:10px;margin:14px 0 10px;}
+.payment-search{display:block;}
+.payment-search span{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--light);margin-bottom:5px;}
+.payment-search input{width:100%;border:2px solid var(--cream3);border-radius:14px;background:var(--cream2);padding:12px 13px;font-size:13px;font-weight:700;color:var(--dark);outline:none;transition:border-color .2s,background .2s,box-shadow .2s;}
+.payment-search input:focus{background:white;border-color:var(--peach);box-shadow:0 0 0 4px rgba(233,137,99,.12);}
+.status-pills{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.status-pills::-webkit-scrollbar{display:none;}
+.status-pills button{border:1px solid var(--line);background:var(--cream2);border-radius:999px;color:var(--mid);font-size:11px;font-weight:900;padding:8px 11px;cursor:pointer;white-space:nowrap;}
+.status-pills button.active{background:var(--dark);color:white;border-color:var(--dark);}
+.payment-results-count{font-size:11px;font-weight:800;color:var(--light);margin-bottom:2px;}
 .money-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--cream2);}
 .money-row:last-child{border-bottom:none;padding-bottom:0;}
 .money-row-main{min-width:0;}
@@ -30,6 +41,26 @@
 .money-row-sub{display:block;font-size:11px;font-weight:700;color:var(--mid);line-height:1.35;margin-top:2px;}
 .money-row-side{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
 .money-amount{font-size:13px;font-weight:900;color:var(--dark);}
+.payment-row{width:100%;border-left:none;border-right:none;border-top:none;background:transparent;text-align:left;color:inherit;cursor:pointer;border-radius:16px;padding:13px 11px;margin:0 -4px;border-bottom:1px solid var(--cream2);transition:background .18s,box-shadow .18s,transform .12s;}
+.payment-row:hover{background:#FFF8F2;box-shadow:0 10px 22px rgba(38,32,26,.06);}
+.payment-row.active{background:var(--peach2);box-shadow:inset 0 0 0 1px rgba(233,137,99,.2);}
+.payment-row:active{transform:scale(.99);}
+.payment-detail-card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow2);}
+.payment-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.payment-total-card{border-radius:18px;background:linear-gradient(135deg,#26201A,#5A4033);color:white;padding:17px;margin-bottom:12px;}
+.payment-total-card span{display:block;font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.68);}
+.payment-total-card strong{display:block;font-size:31px;line-height:1.05;margin:5px 0 3px;}
+.payment-total-card small{font-size:11px;font-weight:700;color:rgba(255,255,255,.72);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.detail-grid div{background:var(--cream2);border:1px solid var(--line);border-radius:14px;padding:11px;min-width:0;}
+.detail-grid span{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.45px;color:var(--light);margin-bottom:4px;}
+.detail-grid strong{font-size:12px;color:var(--dark);line-height:1.3;word-break:break-word;}
+.proof-panel{background:#F7FBF2;border:1px solid rgba(111,163,94,.18);border-radius:16px;padding:13px;margin-bottom:12px;}
+.detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.timeline-card{background:var(--cream2);border-radius:16px;padding:14px;border:1px solid var(--line);}
+.timeline-item{display:flex;gap:10px;position:relative;padding:0 0 12px;}
+.timeline-item:last-child{padding-bottom:0;}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--peach);box-shadow:0 0 0 5px rgba(233,137,99,.14);margin-top:3px;flex-shrink:0;}
 .event-card{background:var(--cream2);border:1px solid var(--line);border-radius:17px;padding:14px;margin-bottom:12px;}
 .event-card:last-child{margin-bottom:0;}
 .progress-line{height:8px;border-radius:999px;background:rgba(38,32,26,.08);overflow:hidden;margin:12px 0 9px;}
@@ -49,4 +80,7 @@
   .finance-grid{grid-template-columns:repeat(3,1fr);}
   .admin-money .finance-section,.admin-whatsapp .card{max-width:none;}
   .money-hero-value{font-size:40px;}
+  .fees-layout{grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);}
+  .payment-detail-card{position:sticky;top:88px;}
+  .payment-toolbar{grid-template-columns:minmax(220px,1fr) auto;align-items:end;}
 }
