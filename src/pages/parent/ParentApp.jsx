@@ -6,6 +6,7 @@ import ParentWeekly from "./ParentWeekly.jsx";
 import ParentPhotos from "./ParentPhotos.jsx";
 import ParentNotices from "./ParentNotices.jsx";
 import ParentChild from "./ParentChild.jsx";
+import "./parent.css";
 
 export default function ParentApp({ onLogout }) {
   const [tab, setTab] = useState("today");
