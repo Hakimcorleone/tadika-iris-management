@@ -54,7 +54,8 @@ export default function AdminWhatsApp({ onLogout, data, actions }) {
     if (!templateForm.title.trim() || !templateForm.message.trim()) return;
     const template = actions.addWhatsappTemplate(templateForm);
     setTemplateForm(blankTemplate);
-    chooseTemplate(template.id);
+    setSelectedTemplateId(template.id);
+    setMessage(template.message);
   }
 
   function prepareWhatsApp() {
