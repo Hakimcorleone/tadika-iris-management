@@ -1,26 +1,38 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ic } from "../../components/icon.jsx";
+import { todayLabel } from "../../data/appStore.js";
 
-export default function TeacherToday({ onLogout }) {
+export default function TeacherToday({ onLogout, data }) {
   const [published, setPublished] = useState(false);
   const [update, setUpdate] = useState("");
   const [reminder, setReminder] = useState("");
-  const [selectedClass, setSelectedClass] = useState("Kelas Pelangi 🌈");
-  const todayLabel = "Monday, 11 May 2026";
+  const classOptions = useMemo(() => {
+    return Array.from(new Set((data?.students || []).map(student => student.className).filter(Boolean)));
+  }, [data?.students]);
+  const [selectedClass, setSelectedClass] = useState(classOptions[0] || "");
+
+  useEffect(() => {
+    if (!selectedClass && classOptions[0]) setSelectedClass(classOptions[0]);
+    if (selectedClass && classOptions.length > 0 && !classOptions.includes(selectedClass)) setSelectedClass(classOptions[0]);
+  }, [classOptions, selectedClass]);
+
+  const selectedCount = selectedClass
+    ? (data?.students || []).filter(student => student.className === selectedClass).length
+    : (data?.students || []).length;
 
   const actions = [
-    {icon:"✅",label:"Mark Attendance",sub:"8/8 today",bg:"#DBF0D0",color:"#5A9048"},
-    {icon:"📸",label:"Upload Photos",sub:"Tap to add",bg:"#D4EEFA",color:"#4A8AAA"},
-    {icon:"📌",label:"Add Reminder",sub:"For parents",bg:"#EAE0F8",color:"#7A65A0"},
-    {icon:"✏️",label:"Add Child Note",sub:"Private note",bg:"#FDF0CC",color:"#A07820"},
+    {label:"Mark Attendance",sub:`${selectedCount} students`,bg:"#DBF0D0",color:"#5A9048"},
+    {label:"Upload Photos",sub:"Tap to add",bg:"#D4EEFA",color:"#4A8AAA"},
+    {label:"Add Reminder",sub:"For parents",bg:"#EAE0F8",color:"#7A65A0"},
+    {label:"Add Child Note",sub:"Private note",bg:"#FDF0CC",color:"#A07820"},
   ];
 
   return (
     <div className="scroll-top fi">
       <div className="top-bar row-between">
         <div>
-          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{todayLabel}</p>
-          <p className="serif" style={{fontSize:19,color:"#26201A"}}>Good morning, Cikgu Nadia 🌿</p>
+          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{todayLabel()}</p>
+          <p className="serif" style={{fontSize:19,color:"#26201A"}}>Teacher workspace</p>
         </div>
         <button type="button" aria-label="Log out" onClick={onLogout} className="icon-btn"><Ic.Out/></button>
       </div>
@@ -29,11 +41,10 @@ export default function TeacherToday({ onLogout }) {
         <div className="row-between">
           <div>
             <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.4,textTransform:"uppercase",marginBottom:2}}>Active Class</p>
-            <p style={{fontSize:15,fontWeight:700,color:"#26201A"}}>{selectedClass}</p>
+            <p style={{fontSize:15,fontWeight:700,color:"#26201A"}}>{selectedClass || "No class yet"}</p>
           </div>
-          <select className="sel" aria-label="Active class" value={selectedClass} onChange={e=>setSelectedClass(e.target.value)}>
-            <option>Kelas Pelangi 🌈</option>
-            <option>Kelas Bintang ⭐</option>
+          <select className="sel" aria-label="Active class" value={selectedClass} onChange={e=>setSelectedClass(e.target.value)} disabled={classOptions.length === 0}>
+            {classOptions.length === 0 ? <option value="">No classes</option> : classOptions.map(className => <option key={className}>{className}</option>)}
           </select>
         </div>
       </div>
@@ -41,8 +52,8 @@ export default function TeacherToday({ onLogout }) {
       <div className="pub-bar">
         <div className="pub-dot" style={{background:published?"#7FAF70":"#EFC55A"}}/>
         <div style={{flex:1}}>
-          <p style={{fontSize:13,fontWeight:700,color:"#26201A"}}>{published?"Today's update is live ✓":"Update not published yet"}</p>
-          <p style={{fontSize:11,color:"#7A6E66"}}>{published?"Parents can now see today's info":"Publish when you're ready"}</p>
+          <p style={{fontSize:13,fontWeight:700,color:"#26201A"}}>{published?"Today's update is live":"Update not published yet"}</p>
+          <p style={{fontSize:11,color:"#7A6E66"}}>{published?"Parents can now see today's info":"Publish when real content is ready"}</p>
         </div>
         <button type="button" className={`btn btn-sm ${published?"btn-ghost":"btn-sage"}`} onClick={()=>setPublished(!published)}>
           {published?"Unpublish":"Publish"}
@@ -52,7 +63,7 @@ export default function TeacherToday({ onLogout }) {
       <div className="action-grid">
         {actions.map((a,i)=>(
           <button key={i} type="button" className="action-card" aria-label={`${a.label}: ${a.sub}`}>
-            <div className="action-icon" style={{background:a.bg}} aria-hidden="true">{a.icon}</div>
+            <div className="action-icon" style={{background:a.bg,color:a.color}} aria-hidden="true">{i + 1}</div>
             <div>
               <p style={{fontSize:13,fontWeight:700,color:"#26201A"}}>{a.label}</p>
               <p style={{fontSize:11,color:"#7A6E66"}}>{a.sub}</p>
@@ -62,9 +73,9 @@ export default function TeacherToday({ onLogout }) {
       </div>
 
       <button type="button" className="dropzone">
-        <div style={{fontSize:28,marginBottom:8}} aria-hidden="true">📸</div>
-        <p style={{fontSize:14,fontWeight:700,color:"#B06840",marginBottom:4}}>Drop photos here</p>
-        <p style={{fontSize:12,color:"#A07A60"}}>or tap to select from camera roll</p>
+        <div style={{fontSize:24,marginBottom:8,fontWeight:900,color:"#B06840"}} aria-hidden="true">+</div>
+        <p style={{fontSize:14,fontWeight:700,color:"#B06840",marginBottom:4}}>Add classroom photos</p>
+        <p style={{fontSize:12,color:"#A07A60"}}>Upload flow can connect to storage later</p>
       </button>
 
       <div className="card">
@@ -72,26 +83,22 @@ export default function TeacherToday({ onLogout }) {
         <textarea
           className="textarea"
           aria-label="Today's class update"
-          placeholder="Write a short update about today's session… (optional)"
+          placeholder="Write a short update about today's session..."
           value={update}
           onChange={e=>setUpdate(e.target.value)}
         />
-        <p style={{fontSize:11,color:"#ABA099",marginBottom:12}}>This appears alongside the weekly plan on the parent's Today view.</p>
+        <p style={{fontSize:11,color:"#ABA099",marginBottom:12}}>This can later publish into the parent's Today view.</p>
         <textarea
           className="textarea"
           aria-label="Reminder for parents"
-          placeholder="Reminder for parents (e.g. bring newspaper tomorrow)…"
+          placeholder="Reminder for parents..."
           value={reminder}
           onChange={e=>setReminder(e.target.value)}
         />
         <button type="button" className="btn btn-peach btn-full" onClick={()=>setPublished(true)}>
-          {published ? "✓ Update Saved" : "Save & Publish"}
+          {published ? "Update Saved" : "Save & Publish"}
         </button>
       </div>
-
-      <p style={{fontSize:12,color:"#ABA099",textAlign:"center",marginBottom:8}}>
-        Only fill in what you need — the rest is already covered by the weekly plan.
-      </p>
     </div>
   );
 }
