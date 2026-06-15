@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   EVENT_COLLECTIONS,
   PAYMENT_SUMMARY,
@@ -14,9 +14,103 @@ function StatusTag({ status }) {
   return <span className={`tag ${cls}`}>{status}</span>;
 }
 
+function ProofTag({ status }) {
+  const cls = status === "Verified" ? "tag-sage" : status.includes("No") ? "tag-coral" : "tag-yellow";
+  return <span className={`tag ${cls}`}>{status}</span>;
+}
+
+function PaymentDetailPanel({ payment }) {
+  if (!payment) return null;
+
+  return (
+    <aside className="payment-detail-card" aria-label={`${payment.child} payment details`}>
+      <div className="payment-detail-head">
+        <div>
+          <p className="mini-eyebrow">Selected payment</p>
+          <p className="serif" style={{fontSize:22,color:"#26201A"}}>{payment.child}</p>
+          <p className="money-row-sub">{payment.parent} · {payment.phone}</p>
+        </div>
+        <StatusTag status={payment.status}/>
+      </div>
+
+      <div className="payment-total-card">
+        <span>{payment.fee}</span>
+        <strong>{money(payment.amount)}</strong>
+        <small>{payment.invoiceNo} · Due {payment.dueDate}</small>
+      </div>
+
+      <div className="detail-grid">
+        <div>
+          <span>Class</span>
+          <strong>{payment.className}</strong>
+        </div>
+        <div>
+          <span>Method</span>
+          <strong>{payment.method}</strong>
+        </div>
+        <div>
+          <span>Receipt</span>
+          <strong>{payment.receiptNo}</strong>
+        </div>
+        <div>
+          <span>Last reminder</span>
+          <strong>{payment.lastReminder}</strong>
+        </div>
+      </div>
+
+      <div className="proof-panel">
+        <div className="row-between" style={{gap:12}}>
+          <div>
+            <p className="money-row-title">Payment proof</p>
+            <p className="money-row-sub">Received: {payment.proofReceivedAt}</p>
+          </div>
+          <ProofTag status={payment.proofStatus}/>
+        </div>
+      </div>
+
+      <div className="detail-actions">
+        <button type="button" className="btn btn-sage"><Ic.Chat/> WhatsApp</button>
+        <button type="button" className="btn btn-ghost"><Ic.Check/> Mark paid</button>
+      </div>
+
+      <div className="timeline-card">
+        <p className="money-row-title" style={{marginBottom:10}}>Reminder history</p>
+        {payment.reminders.map((item, index) => (
+          <div key={index} className="timeline-item">
+            <span className="timeline-dot" />
+            <div>
+              <p className="money-row-title">{item.date} · {item.channel}</p>
+              <p className="money-row-sub">{item.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="note-preview" style={{marginTop:12}}>
+        <p style={{fontSize:11,fontWeight:800,color:"#C4980A",letterSpacing:.4,textTransform:"uppercase",marginBottom:6}}>Admin note</p>
+        <p style={{fontSize:13,color:"#26201A",lineHeight:1.6}}>{payment.notes}</p>
+      </div>
+    </aside>
+  );
+}
+
 export default function AdminPayments({ onLogout }) {
   const [view, setView] = useState("fees");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedPaymentId, setSelectedPaymentId] = useState(STUDENT_PAYMENTS[0].id);
   const collectionRate = Math.round((PAYMENT_SUMMARY.collected / (PAYMENT_SUMMARY.collected + PAYMENT_SUMMARY.outstanding)) * 100);
+
+  const filteredPayments = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return STUDENT_PAYMENTS.filter(payment => {
+      const matchesStatus = statusFilter === "All" || payment.status === statusFilter;
+      const matchesQuery = !needle || [payment.child, payment.parent, payment.className, payment.invoiceNo].join(" ").toLowerCase().includes(needle);
+      return matchesStatus && matchesQuery;
+    });
+  }, [query, statusFilter]);
+
+  const selectedPayment = STUDENT_PAYMENTS.find(payment => payment.id === selectedPaymentId) || filteredPayments[0] || STUDENT_PAYMENTS[0];
 
   return (
     <div className="scroll-top fi admin-money">
@@ -68,27 +162,52 @@ export default function AdminPayments({ onLogout }) {
       </div>
 
       {view === "fees" && (
-        <section className="card finance-section">
-          <div className="sec-header">
-            <div>
-              <p className="serif" style={{fontSize:17,color:"#26201A"}}>Student monthly fees</p>
-              <p className="section-sub">Track May fees and WhatsApp reminders.</p>
+        <section className="fees-layout">
+          <div className="card finance-section">
+            <div className="sec-header">
+              <div>
+                <p className="serif" style={{fontSize:17,color:"#26201A"}}>Student monthly fees</p>
+                <p className="section-sub">Search, filter, open details, then follow up through WhatsApp.</p>
+              </div>
+              <button type="button" className="btn btn-ghost btn-sm"><Ic.Chat/> Remind</button>
             </div>
-            <button type="button" className="btn btn-ghost btn-sm"><Ic.Chat/> Remind</button>
+
+            <div className="payment-toolbar">
+              <label className="payment-search">
+                <span>Search</span>
+                <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Student, parent, invoice..." />
+              </label>
+              <div className="status-pills" aria-label="Payment status filter">
+                {['All', 'Paid', 'Due', 'Overdue'].map(status => (
+                  <button key={status} type="button" className={statusFilter === status ? "active" : ""} onClick={() => setStatusFilter(status)}>{status}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="payment-results-count">{filteredPayments.length} records shown</div>
+
+            {filteredPayments.map(payment => (
+              <button
+                key={payment.id}
+                type="button"
+                className={`money-row payment-row${selectedPayment.id === payment.id ? " active" : ""}`}
+                onClick={() => setSelectedPaymentId(payment.id)}
+              >
+                <div className="money-row-main">
+                  <p className="money-row-title">{payment.child}</p>
+                  <p className="money-row-sub">{payment.parent} · {payment.className}</p>
+                  <p className="money-row-sub">{payment.invoiceNo} · {payment.proofStatus}</p>
+                </div>
+                <div className="money-row-side">
+                  <p className="money-amount">{money(payment.amount)}</p>
+                  <StatusTag status={payment.status}/>
+                  <p className="money-row-sub">{payment.paidOn}</p>
+                </div>
+              </button>
+            ))}
           </div>
-          {STUDENT_PAYMENTS.map((payment, index) => (
-            <div key={index} className="money-row">
-              <div className="money-row-main">
-                <p className="money-row-title">{payment.child}</p>
-                <p className="money-row-sub">{payment.parent} · {payment.className}</p>
-              </div>
-              <div className="money-row-side">
-                <p className="money-amount">{money(payment.amount)}</p>
-                <StatusTag status={payment.status}/>
-                <p className="money-row-sub">{payment.paidOn}</p>
-              </div>
-            </div>
-          ))}
+
+          <PaymentDetailPanel payment={selectedPayment}/>
         </section>
       )}
 
