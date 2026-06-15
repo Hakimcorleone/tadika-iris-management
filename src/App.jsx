@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./styles/global.css";
+import "./styles/tenant.css";
 import LoginScreen from "./components/LoginScreen.jsx";
 import ParentApp from "./pages/parent/ParentApp.jsx";
 import TeacherApp from "./pages/teacher/TeacherApp.jsx";
