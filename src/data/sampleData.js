@@ -81,3 +81,43 @@ export const TEACHER_NOTES = [
   { student:"Ayra Sofea", note:"She was very engaged during storytelling today and even made up her own animal sounds. Wonderful imagination!", date:"Today" },
   { student:"Muhammad Haziq", note:"He joined the music activity confidently today and helped tidy up after snack time.", date:"Today" },
 ];
+
+export const PAYMENT_SUMMARY = {
+  month:"May 2026",
+  collected:48750,
+  outstanding:8450,
+  payrollDue:16800,
+  eventCollected:6250,
+};
+
+export const STUDENT_PAYMENTS = [
+  { child:"Ayra Sofea", parent:"Ibu Farah", className:"Kelas Pelangi 🌈", fee:"Monthly Fee", amount:850, status:"Paid", paidOn:"3 May", method:"FPX" },
+  { child:"Muhammad Haziq", parent:"Ibu Farah", className:"Kelas Bintang ⭐", fee:"Monthly Fee", amount:780, status:"Paid", paidOn:"3 May", method:"FPX" },
+  { child:"Natasha Alya", parent:"Pn. Mira", className:"Kelas Pelangi 🌈", fee:"Monthly Fee", amount:850, status:"Due", paidOn:"Due 15 May", method:"WhatsApp reminder" },
+  { child:"Irfan Hakimi", parent:"En. Hafiz", className:"Kelas Bulan 🌙", fee:"Monthly Fee", amount:780, status:"Overdue", paidOn:"Due 7 May", method:"2 reminders" },
+];
+
+export const TEACHER_PAYROLL = [
+  { teacher:"Cikgu Nadia", role:"Lead Teacher", amount:3200, status:"Ready", due:"25 May" },
+  { teacher:"Cikgu Ain", role:"Teacher", amount:2800, status:"Ready", due:"25 May" },
+  { teacher:"Cikgu Rania", role:"Teacher", amount:2600, status:"Pending attendance", due:"25 May" },
+  { teacher:"Cikgu Dina", role:"Assistant Teacher", amount:2200, status:"Pending approval", due:"25 May" },
+];
+
+export const EVENT_COLLECTIONS = [
+  { title:"Zoo Trip", amountPerChild:65, target:4420, collected:3380, paid:52, total:68, due:"20 May", status:"Open" },
+  { title:"Sports Day T-shirt", amountPerChild:28, target:1904, collected:1512, paid:54, total:68, due:"24 May", status:"Open" },
+  { title:"Concert Costume Deposit", amountPerChild:50, target:3400, collected:1350, paid:27, total:68, due:"31 May", status:"Draft" },
+];
+
+export const WHATSAPP_TEMPLATES = [
+  { title:"Monthly fee reminder", audience:"Parents with due fees", message:"Assalamualaikum, gentle reminder for May school fee. You may pay before 15 May. Thank you." },
+  { title:"Event collection", audience:"Selected event parents", message:"Assalamualaikum, collection for Zoo Trip is now open. Amount: RM65 per child. Please share payment proof here." },
+  { title:"Receipt confirmation", audience:"Single parent", message:"Payment received. Thank you, we have updated your child's payment record." },
+];
+
+export const WHATSAPP_QUEUE = [
+  { name:"Pn. Mira", reason:"May fee due", child:"Natasha Alya", amount:"RM850", status:"Ready to send" },
+  { name:"En. Hafiz", reason:"May fee overdue", child:"Irfan Hakimi", amount:"RM780", status:"Follow-up" },
+  { name:"Zoo Trip parents", reason:"Event collection", child:"52/68 paid", amount:"RM65 each", status:"Broadcast draft" },
+];
