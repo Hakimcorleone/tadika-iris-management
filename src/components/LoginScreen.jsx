@@ -1,6 +1,3 @@
-// ─────────────────────────────────────────────
-// LOGIN SCREEN
-// ─────────────────────────────────────────────
 import { useState } from "react";
 import { Ic } from "./icon.jsx";
 
@@ -8,7 +5,7 @@ export default function LoginScreen({ onLogin }) {
   const [selectedRole, setSelectedRole] = useState(null);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [step, setStep] = useState("role"); // role | credentials
+  const [step, setStep] = useState("role");
 
   const roles = [
     { id:"parent",  emoji:"👨‍👩‍👧", label:"Parent / Ibu Bapa", sub:"View your child's daily updates", bg:"#FDE8D8" },
@@ -16,61 +13,88 @@ export default function LoginScreen({ onLogin }) {
     { id:"admin",   emoji:"🏫",     label:"Admin / Pentadbir",   sub:"Full system access",               bg:"#D4EEFA" },
   ];
 
+  const activeRole = roles.find(role => role.id === selectedRole);
+
   return (
     <div className="login-page">
-      {/* Logo */}
-      <div style={{textAlign:"center",marginBottom:8}}>
-        <div style={{width:76,height:76,background:"white",borderRadius:24,display:"flex",alignItems:"center",justifyContent:"center",fontSize:38,boxShadow:"0 8px 32px rgba(242,160,123,.28)",margin:"0 auto 16px"}}>🌸</div>
-        <p className="serif" style={{fontSize:26,color:"#26201A",marginBottom:4}}>Nur Iris</p>
-        <p style={{fontSize:13,color:"#7A6E66",fontWeight:600,letterSpacing:.4}}>PARENT PORTAL</p>
+      <div className="portal-brand" aria-label="Nur Iris Portal">
+        <div className="portal-logo" aria-hidden="true">🌸</div>
+        <p className="serif portal-name">Nur Iris</p>
+        <p className="portal-eyebrow">SCHOOL PORTAL</p>
       </div>
 
       <div className="login-card" style={{marginTop:24}}>
         {step === "role" ? (
           <>
-            <p className="serif" style={{fontSize:20,color:"#26201A",marginBottom:4}}>Welcome back 👋</p>
-            <p style={{fontSize:13,color:"#7A6E66",marginBottom:20}}>Choose your role to continue.</p>
+            <p className="serif login-title">Welcome back 👋</p>
+            <p className="login-subtitle">Choose your workspace to continue.</p>
             {roles.map(r => (
-              <button key={r.id} className={`role-btn${selectedRole===r.id?" selected":""}`} onClick={()=>setSelectedRole(r.id)}>
-                <span className="role-icon" style={{background:r.bg}}>{r.emoji}</span>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:14,fontWeight:700,color:"#26201A"}}>{r.label}</div>
-                  <div style={{fontSize:12,color:"#7A6E66"}}>{r.sub}</div>
-                </div>
-                {selectedRole===r.id && <span style={{color:"#F2A07B"}}><Ic.Check/></span>}
+              <button
+                key={r.id}
+                type="button"
+                className={`role-btn${selectedRole===r.id?" selected":""}`}
+                onClick={()=>setSelectedRole(r.id)}
+                aria-pressed={selectedRole===r.id}
+              >
+                <span className="role-icon" style={{background:r.bg}} aria-hidden="true">{r.emoji}</span>
+                <span style={{flex:1}}>
+                  <span className="role-label">{r.label}</span>
+                  <span className="role-subtitle">{r.sub}</span>
+                </span>
+                {selectedRole===r.id && <span className="role-check" aria-hidden="true"><Ic.Check/></span>}
               </button>
             ))}
-            <button className="btn btn-peach btn-full" style={{marginTop:8}} disabled={!selectedRole} onClick={()=>setStep("credentials")}>
+            <button
+              className="btn btn-peach btn-full"
+              style={{marginTop:8}}
+              type="button"
+              disabled={!selectedRole}
+              onClick={()=>setStep("credentials")}
+            >
               Continue →
             </button>
           </>
         ) : (
-          <>
-            <button onClick={()=>setStep("role")} style={{background:"none",border:"none",color:"#7A6E66",fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:16,fontFamily:"'Nunito',sans-serif",display:"flex",alignItems:"center",gap:6}}>
+          <form onSubmit={(event)=>{ event.preventDefault(); onLogin(selectedRole); }}>
+            <button type="button" className="back-link" onClick={()=>setStep("role")}>
               ← Back
             </button>
-            <p className="serif" style={{fontSize:20,color:"#26201A",marginBottom:4}}>Sign in</p>
-            <p style={{fontSize:13,color:"#7A6E66",marginBottom:20}}>
-              {roles.find(r=>r.id===selectedRole)?.emoji} {roles.find(r=>r.id===selectedRole)?.label}
+            <p className="serif login-title">Sign in</p>
+            <p className="role-pill">
+              <span aria-hidden="true">{activeRole?.emoji}</span> {activeRole?.label}
             </p>
-            <label style={{fontSize:12,fontWeight:700,color:"#7A6E66",display:"block",marginBottom:6,letterSpacing:.3}}>EMAIL ADDRESS</label>
-            <input className="inp" type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)} />
-            <label style={{fontSize:12,fontWeight:700,color:"#7A6E66",display:"block",marginBottom:6,letterSpacing:.3}}>PASSWORD</label>
-            <input className="inp" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} />
+            <label className="form-label" htmlFor="portal-email">EMAIL ADDRESS</label>
+            <input
+              id="portal-email"
+              className="inp"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              autoComplete="email"
+              onChange={e=>setEmail(e.target.value)}
+            />
+            <label className="form-label" htmlFor="portal-password">PASSWORD</label>
+            <input
+              id="portal-password"
+              className="inp"
+              type="password"
+              placeholder="••••••••"
+              value={pass}
+              autoComplete="current-password"
+              onChange={e=>setPass(e.target.value)}
+            />
             <div style={{textAlign:"right",marginBottom:20}}>
-              <span style={{fontSize:12,color:"#F2A07B",fontWeight:700,cursor:"pointer"}}>Forgot password?</span>
+              <button type="button" className="link-btn">Forgot password?</button>
             </div>
-            <button className="btn btn-peach btn-full" onClick={()=>onLogin(selectedRole)}>
+            <button className="btn btn-peach btn-full" type="submit">
               Sign In to Portal
             </button>
-            <div style={{textAlign:"center",marginTop:14}}>
-              <span style={{fontSize:12,color:"#ABA099"}}>Demo: click Sign In to enter the app</span>
-            </div>
-          </>
+            <p className="demo-note">Demo mode: sign in to preview the selected workspace.</p>
+          </form>
         )}
       </div>
 
-      <p style={{marginTop:24,fontSize:11,color:"#ABA099",textAlign:"center"}}>
+      <p className="footer-note">
         © 2026 Nur Iris Preschool · All rights reserved
       </p>
     </div>
