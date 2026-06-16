@@ -38,7 +38,9 @@ const blankEvent = {
 
 function StatusTag({ status }) {
   const label = status || "Draft";
-  const cls = label === "Paid" || label === "Ready" || label === "Open" ? "tag-sage" : label === "Overdue" ? "tag-coral" : "tag-yellow";
+  const cls = label === "Paid" || label === "Ready" || label === "Open" || label === "Receipt queued"
+    ? "tag-sage"
+    : label === "Overdue" ? "tag-coral" : "tag-yellow";
   return <span className={`tag ${cls}`}>{label}</span>;
 }
 
@@ -57,7 +59,7 @@ function EmptyState({ title, text }) {
   );
 }
 
-function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
+function PaymentDetailPanel({ payment, receipt, queuedMessage, onDelete, onMarkPaid }) {
   if (!payment) {
     return (
       <aside className="payment-detail-card empty-detail">
@@ -66,6 +68,8 @@ function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
       </aside>
     );
   }
+
+  const isPaid = payment.status === "Paid";
 
   return (
     <aside className="payment-detail-card" aria-label={`${payment.child} payment details`}>
@@ -84,6 +88,14 @@ function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
         <small>{payment.invoiceNo || "No invoice"} - Due {payment.dueDate || "not set"}</small>
       </div>
 
+      <div className={`receipt-strip${receipt ? " ready" : ""}`}>
+        <div>
+          <p className="money-row-title">{receipt ? "Receipt generated" : "Receipt pending"}</p>
+          <p className="money-row-sub">{receipt?.receiptNo || payment.receiptNo || "Mark paid to generate receipt"}</p>
+        </div>
+        <StatusTag status={queuedMessage ? "Receipt queued" : receipt ? "Ready" : "Not queued"}/>
+      </div>
+
       <div className="detail-grid">
         <div>
           <span>Class</span>
@@ -95,7 +107,7 @@ function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
         </div>
         <div>
           <span>Receipt</span>
-          <strong>{payment.receiptNo || "Not issued"}</strong>
+          <strong>{receipt?.receiptNo || payment.receiptNo || "Not issued"}</strong>
         </div>
         <div>
           <span>Last reminder</span>
@@ -115,7 +127,9 @@ function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
 
       <div className="detail-actions three">
         <button type="button" className="btn btn-sage"><Ic.Chat/> WhatsApp</button>
-        <button type="button" className="btn btn-ghost" onClick={() => onMarkPaid(payment)}><Ic.Check/> Mark paid</button>
+        <button type="button" className="btn btn-ghost" disabled={isPaid} onClick={() => onMarkPaid(payment)}>
+          <Ic.Check/> {isPaid ? "Paid" : "Mark paid"}
+        </button>
         <button type="button" className="btn btn-danger" onClick={() => onDelete(payment.id)}><Ic.X/> Delete</button>
       </div>
 
@@ -144,7 +158,7 @@ function PaymentDetailPanel({ payment, onDelete, onMarkPaid }) {
   );
 }
 
-export default function AdminPayments({ onLogout, data, actions }) {
+export default function AdminPayments({ onLogout, data, actions, tenant, usage }) {
   const [view, setView] = useState("fees");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -158,6 +172,8 @@ export default function AdminPayments({ onLogout, data, actions }) {
   const teacherPayroll = data?.teacherPayroll || [];
   const eventCollections = data?.eventCollections || [];
   const students = data?.students || [];
+  const receipts = data?.receipts || [];
+  const whatsappQueue = data?.whatsappQueue || [];
   const totalFees = Number(paymentSummary.collected || 0) + Number(paymentSummary.outstanding || 0);
   const collectionRate = totalFees > 0 ? Math.round((Number(paymentSummary.collected || 0) / totalFees) * 100) : 0;
 
@@ -174,6 +190,12 @@ export default function AdminPayments({ onLogout, data, actions }) {
   }, [query, statusFilter, studentPayments]);
 
   const selectedPayment = filteredPayments.find(payment => payment.id === selectedPaymentId) || filteredPayments[0] || null;
+  const selectedReceipt = selectedPayment
+    ? receipts.find(receipt => receipt.paymentId === selectedPayment.id || receipt.receiptNo === selectedPayment.receiptNo)
+    : null;
+  const selectedQueueMessage = selectedPayment
+    ? whatsappQueue.find(message => message.paymentId === selectedPayment.id || (selectedReceipt && message.receiptId === selectedReceipt.id))
+    : null;
 
   function updatePaymentField(field, value) {
     setPaymentForm(prev => ({ ...prev, [field]: value }));
@@ -191,6 +213,7 @@ export default function AdminPayments({ onLogout, data, actions }) {
     event.preventDefault();
     if (!paymentForm.child.trim() || !paymentForm.amount) return;
     const record = actions.addPayment(paymentForm);
+    if (paymentForm.status === "Paid") actions.markPaymentPaid(record.id);
     setSelectedPaymentId(record.id);
     setPaymentForm(blankPayment);
   }
@@ -215,25 +238,15 @@ export default function AdminPayments({ onLogout, data, actions }) {
   }
 
   function markPaid(payment) {
-    const receiptNo = payment.receiptNo && payment.receiptNo !== "Not issued"
-      ? payment.receiptNo
-      : `RCT-${String(payment.invoiceNo || Date.now()).replace("INV-", "")}`;
-    actions.updatePayment(payment.id, {
-      status: "Paid",
-      paidOn: "Paid today",
-      receiptNo,
-      method: payment.method || "Manual record",
-      proofStatus: "Verified",
-      proofReceivedAt: "Today",
-      lastReminder: payment.lastReminder || "Not sent",
-    });
+    if (!payment || payment.status === "Paid") return;
+    actions.markPaymentPaid(payment.id);
   }
 
   return (
     <div className="scroll-top fi admin-money">
       <div className="top-bar row-between">
         <div>
-          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{paymentSummary.month || "Current month"}</p>
+          <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{tenant?.schoolName || paymentSummary.month || "Current tenant"}</p>
           <p className="serif" style={{fontSize:20,color:"#26201A"}}>Payments</p>
         </div>
         <button type="button" aria-label="Log out" onClick={onLogout} className="icon-btn"><Ic.Out/></button>
@@ -243,7 +256,7 @@ export default function AdminPayments({ onLogout, data, actions }) {
         <div>
           <p className="mini-eyebrow">Collected monthly fees</p>
           <p className="money-hero-value">{money(paymentSummary.collected)}</p>
-          <p className="money-hero-sub">{collectionRate}% collection rate from real records</p>
+          <p className="money-hero-sub">{collectionRate}% collection rate from tenant records</p>
         </div>
         <div className="money-ring" style={{background:`conic-gradient(var(--sage) 0 ${collectionRate}%, rgba(255,255,255,.18) ${collectionRate}% 100%)`}} aria-label={`${collectionRate}% collected`}>
           <span>{collectionRate}%</span>
@@ -266,6 +279,11 @@ export default function AdminPayments({ onLogout, data, actions }) {
           <p className="finance-value">{money(paymentSummary.eventCollected)}</p>
           <p className="finance-sub">Ad-hoc collection received</p>
         </div>
+        <div className="finance-card lilac">
+          <p className="finance-label">Receipts</p>
+          <p className="finance-value">{paymentSummary.receiptCount || receipts.length}</p>
+          <p className="finance-sub">WhatsApp queue {usage?.whatsappMessages || whatsappQueue.length}</p>
+        </div>
       </div>
 
       <div className="segmented" role="tablist" aria-label="Payment views">
@@ -284,7 +302,7 @@ export default function AdminPayments({ onLogout, data, actions }) {
             <div className="sec-header">
               <div>
                 <p className="serif" style={{fontSize:17,color:"#26201A"}}>Student monthly fees</p>
-                <p className="section-sub">Create invoices manually now. Backend billing can replace this store later.</p>
+                <p className="section-sub">Tenant-scoped invoices now. API billing can replace this local adapter later.</p>
               </div>
               <span className="badge">{studentPayments.length}</span>
             </div>
@@ -356,28 +374,37 @@ export default function AdminPayments({ onLogout, data, actions }) {
 
             {filteredPayments.length === 0 ? (
               <EmptyState title="No fee records" text="Add a monthly fee above. Nothing fake is bundled in this tenant anymore." />
-            ) : filteredPayments.map(payment => (
-              <button
-                key={payment.id}
-                type="button"
-                className={`money-row payment-row${selectedPayment?.id === payment.id ? " active" : ""}`}
-                onClick={() => setSelectedPaymentId(payment.id)}
-              >
-                <div className="money-row-main">
-                  <p className="money-row-title">{payment.child || "Unnamed child"}</p>
-                  <p className="money-row-sub">{payment.parent || "No parent"} - {payment.className || "No class"}</p>
-                  <p className="money-row-sub">{payment.invoiceNo || "No invoice"} - {payment.proofStatus || "No proof"}</p>
-                </div>
-                <div className="money-row-side">
-                  <p className="money-amount">{money(payment.amount)}</p>
-                  <StatusTag status={payment.status}/>
-                  <p className="money-row-sub">{payment.paidOn || payment.dueDate || "No date"}</p>
-                </div>
-              </button>
-            ))}
+            ) : filteredPayments.map(payment => {
+              const receipt = receipts.find(item => item.paymentId === payment.id || item.receiptNo === payment.receiptNo);
+              return (
+                <button
+                  key={payment.id}
+                  type="button"
+                  className={`money-row payment-row${selectedPayment?.id === payment.id ? " active" : ""}`}
+                  onClick={() => setSelectedPaymentId(payment.id)}
+                >
+                  <div className="money-row-main">
+                    <p className="money-row-title">{payment.child || "Unnamed child"}</p>
+                    <p className="money-row-sub">{payment.parent || "No parent"} - {payment.className || "No class"}</p>
+                    <p className="money-row-sub">{payment.invoiceNo || "No invoice"} - {receipt ? receipt.receiptNo : payment.proofStatus || "No proof"}</p>
+                  </div>
+                  <div className="money-row-side">
+                    <p className="money-amount">{money(payment.amount)}</p>
+                    <StatusTag status={payment.status}/>
+                    <p className="money-row-sub">{payment.paidOn || payment.dueDate || "No date"}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
-          <PaymentDetailPanel payment={selectedPayment} onDelete={deletePayment} onMarkPaid={markPaid}/>
+          <PaymentDetailPanel
+            payment={selectedPayment}
+            receipt={selectedReceipt}
+            queuedMessage={selectedQueueMessage}
+            onDelete={deletePayment}
+            onMarkPaid={markPaid}
+          />
         </section>
       )}
 
@@ -452,34 +479,13 @@ export default function AdminPayments({ onLogout, data, actions }) {
 
           <form className="admin-form add-record-panel" onSubmit={addEvent}>
             <div className="form-grid two">
-              <label className="form-field">
-                <span>Event</span>
-                <input value={eventForm.title} onChange={event => updateEventField("title", event.target.value)} placeholder="Event name" required />
-              </label>
-              <label className="form-field">
-                <span>Amount / child</span>
-                <input value={eventForm.amountPerChild} onChange={event => updateEventField("amountPerChild", event.target.value)} inputMode="decimal" placeholder="0" />
-              </label>
-              <label className="form-field">
-                <span>Target</span>
-                <input value={eventForm.target} onChange={event => updateEventField("target", event.target.value)} inputMode="decimal" placeholder="0" />
-              </label>
-              <label className="form-field">
-                <span>Collected</span>
-                <input value={eventForm.collected} onChange={event => updateEventField("collected", event.target.value)} inputMode="decimal" placeholder="0" />
-              </label>
-              <label className="form-field">
-                <span>Paid count</span>
-                <input value={eventForm.paid} onChange={event => updateEventField("paid", event.target.value)} inputMode="numeric" placeholder="0" />
-              </label>
-              <label className="form-field">
-                <span>Total count</span>
-                <input value={eventForm.total} onChange={event => updateEventField("total", event.target.value)} inputMode="numeric" placeholder="0" />
-              </label>
-              <label className="form-field">
-                <span>Due</span>
-                <input value={eventForm.due} onChange={event => updateEventField("due", event.target.value)} placeholder="Due date" />
-              </label>
+              <label className="form-field"><span>Event</span><input value={eventForm.title} onChange={event => updateEventField("title", event.target.value)} placeholder="Event name" required /></label>
+              <label className="form-field"><span>Amount / child</span><input value={eventForm.amountPerChild} onChange={event => updateEventField("amountPerChild", event.target.value)} inputMode="decimal" placeholder="0" /></label>
+              <label className="form-field"><span>Target</span><input value={eventForm.target} onChange={event => updateEventField("target", event.target.value)} inputMode="decimal" placeholder="0" /></label>
+              <label className="form-field"><span>Collected</span><input value={eventForm.collected} onChange={event => updateEventField("collected", event.target.value)} inputMode="decimal" placeholder="0" /></label>
+              <label className="form-field"><span>Paid count</span><input value={eventForm.paid} onChange={event => updateEventField("paid", event.target.value)} inputMode="numeric" placeholder="0" /></label>
+              <label className="form-field"><span>Total count</span><input value={eventForm.total} onChange={event => updateEventField("total", event.target.value)} inputMode="numeric" placeholder="0" /></label>
+              <label className="form-field"><span>Due</span><input value={eventForm.due} onChange={event => updateEventField("due", event.target.value)} placeholder="Due date" /></label>
               <label className="form-field">
                 <span>Status</span>
                 <select value={eventForm.status} onChange={event => updateEventField("status", event.target.value)}>
