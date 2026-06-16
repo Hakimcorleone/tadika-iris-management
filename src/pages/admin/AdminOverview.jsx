@@ -16,6 +16,18 @@ function ReadinessTag({ ready }) {
   return <span className={`tag ${ready ? "tag-sage" : "tag-yellow"}`}>{ready ? "Ready" : "Open"}</span>;
 }
 
+function displayReadiness(item) {
+  const labels = {
+    tenant: "School profile",
+    limits: "Capacity limits",
+    database: "Database connection",
+    receipts: "Receipt generator",
+    whatsapp: "WhatsApp flow",
+    audit: "Activity log",
+  };
+  return { ...item, label: labels[item.key] || item.label };
+}
+
 export default function AdminOverview({ onLogout, data, tenant, usage, readiness }) {
   const paymentSummary = data?.paymentSummary || {};
   const classes = data?.classes || [];
@@ -24,7 +36,8 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
   const queue = data?.whatsappQueue || [];
   const teacherNames = new Set((data?.teacherPayroll || []).map(item => item.teacher).filter(Boolean));
   const parentNames = new Set((data?.studentPayments || []).map(item => item.parent).filter(Boolean));
-  const readyCount = (readiness || []).filter(item => item.ready).length;
+  const readinessItems = (readiness || []).map(displayReadiness);
+  const readyCount = readinessItems.filter(item => item.ready).length;
 
   const stats = [
     {label:"Students", val:students.length, bg:"#DBF0D0", sub:`${usage?.students || 0}/${usage?.studentLimit || tenant?.studentLimit || 0} limit`},
@@ -45,19 +58,19 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
       <div className="top-bar row-between">
         <div>
           <p style={{fontSize:11,fontWeight:800,color:"#ABA099",letterSpacing:.5,textTransform:"uppercase"}}>{todayLabel()}</p>
-          <p className="serif" style={{fontSize:19,color:"#26201A"}}>SaaS operator view</p>
+          <p className="serif" style={{fontSize:19,color:"#26201A"}}>Admin overview</p>
         </div>
         <button type="button" aria-label="Log out" onClick={onLogout} className="icon-btn"><Ic.Out/></button>
       </div>
 
       <section className="tenant-hero-card">
         <div>
-          <p className="mini-eyebrow">Current tenant</p>
-          <p className="serif" style={{fontSize:24,color:"#26201A"}}>{tenant?.schoolName || "New School Tenant"}</p>
-          <p className="section-sub">/{tenant?.slug || "tenant"} - {tenant?.subscriptionStatus || "trial"} - {tenant?.timezone || "Asia/Kuala_Lumpur"}</p>
+          <p className="mini-eyebrow">School profile</p>
+          <p className="serif" style={{fontSize:24,color:"#26201A"}}>{tenant?.schoolName || "New School"}</p>
+          <p className="section-sub">Demo workspace - {tenant?.timezone || "Asia/Kuala_Lumpur"}</p>
         </div>
         <div className="tenant-plan-pill">
-          <span>{tenant?.planId || "starter"}</span>
+          <span>Capacity</span>
           <strong>{usage?.studentLimit || tenant?.studentLimit || 0} student limit</strong>
         </div>
       </section>
@@ -96,12 +109,12 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
       <div className="card">
         <div className="sec-header">
           <div>
-            <p className="serif" style={{fontSize:16,color:"#26201A"}}>SaaS readiness</p>
-            <p className="section-sub">{readyCount}/{readiness?.length || 0} foundation checks ready for backend handoff.</p>
+            <p className="serif" style={{fontSize:16,color:"#26201A"}}>System readiness</p>
+            <p className="section-sub">{readyCount}/{readinessItems.length} checks ready before real backend handoff.</p>
           </div>
-          <span className="tag tag-sky">Tenant scoped</span>
+          <span className="tag tag-sky">School scoped</span>
         </div>
-        {(readiness || []).map(item => (
+        {readinessItems.map(item => (
           <div key={item.key} className="list-item setup-row">
             <div className={`setup-dot${item.ready ? " ready" : ""}`}/>
             <div style={{flex:1}}>
@@ -136,7 +149,7 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
           <span className="tag tag-peach">{classes.length}</span>
         </div>
         {classes.length === 0 ? (
-          <EmptyState title="No classes yet" text="Classes can be normalized into a tenant-scoped table when the database is connected." />
+          <EmptyState title="No classes yet" text="Classes can be added after the database is connected." />
         ) : classes.map((c,i)=>(
           <div key={c.id || i} className="list-item">
             <div style={{width:10,height:10,borderRadius:"50%",background:c.dot || "#F2A07B",flexShrink:0}}/>
@@ -155,7 +168,7 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
           <span className="badge">{announcements.length}</span>
         </div>
         {announcements.length === 0 ? (
-          <EmptyState title="No announcements" text="Announcements remain tenant-scoped and can be added as a later module." />
+          <EmptyState title="No announcements" text="Announcements can be added as a later module." />
         ) : announcements.map((a,i)=>(
           <div key={a.id || i} className="list-item">
             <div style={{flex:1}}>
