@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Ic } from "../../components/icon.jsx";
 
-const money = value => `RM${Number(value || 0).toLocaleString("en-MY")}`;
 const titleCase = value => String(value || "").replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase());
 
 function statusTone(status) {
@@ -71,7 +70,7 @@ export default function AdminSettings({ onLogout, tenant, workspace, usage, read
         </div>
         <div className="settings-hero-metric">
           <span>{currentPlan?.name || "Starter"}</span>
-          <strong>{money(currentPlan?.monthlyFee || 0)}/mo</strong>
+          <strong>{currentPlan?.studentLimit || usage?.studentLimit || 0} student limit</strong>
         </div>
       </section>
 
@@ -142,8 +141,8 @@ export default function AdminSettings({ onLogout, tenant, workspace, usage, read
       <section className="settings-panel">
         <div className="sec-header">
           <div>
-            <p className="serif" style={{fontSize:17,color:"#26201A"}}>Commercial plans</p>
-            <p className="section-sub">Switch the tenant between sellable packages without changing code.</p>
+            <p className="serif" style={{fontSize:17,color:"#26201A"}}>Service packages</p>
+            <p className="section-sub">Switch package limits without exposing your commercial pricing inside the product.</p>
           </div>
           <span className="badge">{planList.length}</span>
         </div>
@@ -154,9 +153,9 @@ export default function AdminSettings({ onLogout, tenant, workspace, usage, read
                 <strong>{plan.name}</strong>
                 {tenant?.planId === plan.id && <span className="tag tag-sage">Current</span>}
               </div>
-              <p>{money(plan.setupFee)} setup</p>
-              <h3>{plan.monthlyFee ? `${money(plan.monthlyFee)}/mo` : "One-time"}</h3>
-              <small>{plan.studentLimit} students - {plan.staffLimit} staff - {plan.includedWhatsappMessages} WhatsApp</small>
+              <p>Package limits</p>
+              <h3>{plan.studentLimit} students</h3>
+              <small>{plan.staffLimit} staff - {plan.includedWhatsappMessages || "Manual"} WhatsApp allowance</small>
             </button>
           ))}
         </div>
