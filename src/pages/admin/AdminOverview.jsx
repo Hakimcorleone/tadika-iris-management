@@ -58,7 +58,7 @@ export default function AdminOverview({ onLogout, data, tenant, usage, readiness
         </div>
         <div className="tenant-plan-pill">
           <span>{tenant?.planId || "starter"}</span>
-          <strong>{money(tenant?.monthlyFee || 0)}/mo</strong>
+          <strong>{usage?.studentLimit || tenant?.studentLimit || 0} student limit</strong>
         </div>
       </section>
 
