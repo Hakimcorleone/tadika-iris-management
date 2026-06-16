@@ -18,6 +18,12 @@ function EmptyState({ title, text }) {
   );
 }
 
+function queueTag(status) {
+  if (status === "Follow-up") return "tag-coral";
+  if (status === "Receipt queued") return "tag-sage";
+  return "tag-yellow";
+}
+
 export default function AdminWhatsApp({ onLogout, data, actions }) {
   const templates = data?.whatsappTemplates || [];
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
@@ -79,7 +85,7 @@ export default function AdminWhatsApp({ onLogout, data, actions }) {
         <div>
           <p className="mini-eyebrow">Primary channel</p>
           <p className="serif" style={{fontSize:22,color:"#26201A"}}>Use the app as the control room; parents still receive messages in WhatsApp.</p>
-          <p className="section-sub" style={{marginTop:6}}>Templates and queues are empty until you create real records.</p>
+          <p className="section-sub" style={{marginTop:6}}>Templates, unpaid reminders, and receipt messages appear only after you create real records.</p>
         </div>
       </section>
 
@@ -143,12 +149,12 @@ export default function AdminWhatsApp({ onLogout, data, actions }) {
         <div className="sec-header">
           <div>
             <p className="serif" style={{fontSize:17,color:"#26201A"}}>Follow-up queue</p>
-            <p className="section-sub">Generated from unpaid payment records.</p>
+            <p className="section-sub">Generated from unpaid payments and receipt actions.</p>
           </div>
           <span className="badge">{followUpQueue.length}</span>
         </div>
         {followUpQueue.length === 0 ? (
-          <EmptyState title="No follow-ups" text="Add due or overdue fees and they will appear here automatically." />
+          <EmptyState title="No follow-ups" text="Add due fees or mark payments paid, then WhatsApp work will appear here automatically." />
         ) : followUpQueue.map(item => (
           <div key={item.id} className="wa-queue-row">
             <div className="wa-status-dot" />
@@ -158,7 +164,7 @@ export default function AdminWhatsApp({ onLogout, data, actions }) {
             </div>
             <div style={{textAlign:"right"}}>
               <p className="money-amount">{item.amount}</p>
-              <span className={`tag ${item.status === "Follow-up" ? "tag-coral" : "tag-yellow"}`}>{item.status}</span>
+              <span className={`tag ${queueTag(item.status)}`}>{item.status}</span>
             </div>
           </div>
         ))}
